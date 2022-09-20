@@ -9,7 +9,8 @@ import 'package:todo_app/screens/main_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
-
+  Hive.registerAdapter(TodoAdapter());
+  await Hive.openBox<Todo>('todo_box');
   runApp(const ProviderScope(child: MyApp()));
 }
 

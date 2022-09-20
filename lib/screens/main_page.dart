@@ -12,7 +12,6 @@ class MainPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     List todoList = ref.watch(todoListProvider);
-    
 
     return Scaffold(
       backgroundColor: Colors.grey[200],
@@ -49,17 +48,14 @@ class MainPage extends ConsumerWidget {
                   itemBuilder: (context, index) {
                     return Dismissible(
                       key: Key(todoList[index].id),
+                      //key: Key(todoList[index].id),
                       onDismissed: (direction) {
-                        
-                        ref.read(todoListProvider.notifier).removeTodoItem(
-                              todoList[index].id,
-                            );
+                        ref
+                            .read(todoListProvider.notifier)
+                            .deleteTodoItem(todoList[index].id);
                       },
                       child: TodoTileWidget(
-                        id: ref.watch(todoListProvider)[index].id,
-                        task: ref.watch(todoListProvider)[index].task,
-                        isDone: ref.watch(todoListProvider)[index].isDone,
-                        onTap: () {},
+                        todo: todoList[index],
                       ),
                     );
                   },

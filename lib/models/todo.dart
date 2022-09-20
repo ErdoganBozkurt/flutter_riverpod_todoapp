@@ -17,4 +17,21 @@ class Todo extends HiveObject {
     required this.task,
     this.isDone = false,
   });
+
+  Todo copyWith({
+    String? id,
+    String? task,
+    bool? isDone,
+  }) {
+    return Todo(
+      id: id ?? this.id,
+      task: task ?? this.task,
+      isDone: isDone ?? this.isDone,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'Todo(id: $id, task: $task, isDone: $isDone)';
+  }
 }

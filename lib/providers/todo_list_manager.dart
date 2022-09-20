@@ -1,72 +1,56 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
+
 import 'package:todo_app/models/todo.dart';
+
 import 'package:uuid/uuid.dart';
 
-class TodoList extends StateNotifier<List<Todo>> {
-  TodoList([List<Todo>? initialTodo]) : super(initialTodo ?? []);
+class TodoListManager extends StateNotifier<List<Todo>> {
+  TodoListManager(List<Todo> state) : super(state);
 
-  void addTodoItem(String task) {
-    Todo newTodo = Todo(
-      id: const Uuid().v4(),
+  void addTodoItem(String task) async {
+    var box = await Hive.openBox<Todo>('todo_box');
+    box.add(Todo(
+      id: const Uuid().v1(),
       task: task,
+      isDone: false,
+    ));
+
+    state = box.values.toList();
+  }
+
+  void deleteTodoItem(String id) async {
+    var box = await Hive.openBox<Todo>('todo_box');
+    await box.deleteAt( box.values.toList().indexWhere((element) => element.id == id));
+
+    state = box.values.toList();
+  }
+
+  void editTodoItem(Todo todo) async {
+    var box = await Hive.openBox<Todo>('todo_box');
+
+    await box.putAt(
+      box.values.toList().indexWhere((element) => element.id == todo.id),
+      todo,
     );
-    state = [...state, newTodo];
+
+    state = box.values.toList();
   }
 
-  void removeTodoItem(String id) {
-    state = state.where((todo) => todo.id != id).toList();
+  void toggleTodoItem(Todo todo) async {
+    var box = await Hive.openBox<Todo>('todo_box');
+    await box.putAt(
+      box.values.toList().indexWhere((element) => element.id == todo.id),
+      todo.copyWith(isDone: !todo.isDone),
+    );
+
+    state = box.values.toList();
   }
 
-  void toggleTodoItem(String id) {
-    state = [
-      for (final todo in state)
-        if (todo.id == id)
-          Todo(
-            id: todo.id,
-            task: todo.task,
-            isDone: !todo.isDone,
-          )
-        else
-          todo
-    ];
-  }
+  void deleteAllTodoItem() async {
+    var box = await Hive.openBox<Todo>('todo_box');
+    await box.clear();
 
-  void updateTodoItem(String id, String task) {
-    state = [
-      for (final todo in state)
-        if (todo.id == id)
-          Todo(
-            id: todo.id,
-            task: task,
-            isDone: todo.isDone,
-          )
-        else
-          todo
-    ];
-  }
-
-  void setSelectedTodoItem(String id) {
-    state = [
-      for (final todo in state)
-        if (todo.id == id)
-          Todo(
-            id: todo.id,
-            task: todo.task,
-            isDone: todo.isDone,
-          )
-        else
-          todo
-    ];
-  }
-
-  String? getTask(String? id) {
-    if (id == null) {
-      return null;
-    }
-    return state.firstWhere((todo) => todo.id == id).task;
+    state = box.values.toList();
   }
 }
-
-
-
-

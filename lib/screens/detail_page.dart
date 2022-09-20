@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:todo_app/data/local_storage.dart';
 import 'package:todo_app/providers/all_providers.dart';
-import 'package:todo_app/providers/todo_list_manager.dart';
 import 'package:todo_app/utils/app_colors.dart';
+
+import '../models/todo.dart';
 
 class DetailPage extends ConsumerStatefulWidget {
   const DetailPage({
@@ -24,8 +24,12 @@ class _DetailPageState extends ConsumerState<DetailPage> {
   void initState() {
     super.initState();
 
-    _textEditingController.text =
-        ref.read(todoListProvider.notifier).getTask(widget.id) ?? '';
+    if (widget.id != null) {
+      _textEditingController.text = ref
+          .read(todoListProvider)
+          .firstWhere((element) => element.id == widget.id)
+          .task;
+    }
   }
 
   @override
@@ -89,14 +93,20 @@ class _DetailPageState extends ConsumerState<DetailPage> {
   void _addTodoAndPop(BuildContext context, WidgetRef ref) {
     Navigator.pop(context);
     if (_textEditingController.text.trim().isNotEmpty) {
+      // if id is null, add new todo
+      // else update todo
       if (widget.id == null) {
-        ref
-            .read(todoListProvider.notifier)
-            .addTodoItem(_textEditingController.text);
+        ref.read(todoListProvider.notifier).addTodoItem(
+              _textEditingController.text,
+            );
       } else {
-        ref
-            .read(todoListProvider.notifier)
-            .updateTodoItem(widget.id!, _textEditingController.text);
+        ref.read(todoListProvider.notifier).editTodoItem(
+              Todo(
+                id: widget.id!,
+                task: _textEditingController.text,
+                isDone: false,
+              ),
+            );
       }
     }
   }

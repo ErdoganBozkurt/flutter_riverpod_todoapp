@@ -1,23 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:todo_app/models/todo.dart';
 import 'package:todo_app/providers/all_providers.dart';
-import 'package:todo_app/providers/todo_list_manager.dart';
 import 'package:todo_app/screens/detail_page.dart';
 import 'package:todo_app/utils/app_colors.dart';
 
 class TodoTileWidget extends ConsumerStatefulWidget {
   const TodoTileWidget({
     Key? key,
-    required this.isDone,
-    required this.task,
-    required this.onTap,
-    required this.id,
+    required this.todo,
   }) : super(key: key);
 
-  final bool isDone;
-  final String task;
-  final VoidCallback onTap;
-  final String id;
+  final Todo todo;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _TodoTileWidgetState();
@@ -36,32 +30,30 @@ class _TodoTileWidgetState extends ConsumerState<TodoTileWidget> {
       child: ListTile(
         title: Flex(
           direction: Axis.vertical,
-          children: 
-            [Expanded(
+          children: [
+            Expanded(
               child: Text(
-                widget.task,
+                widget.todo.task,
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: AppColors.ebonyClay
-                      ,
+                      color: AppColors.ebonyClay,
                     ),
                 maxLines: 4,
                 overflow: TextOverflow.ellipsis,
-
               ),
             ),
           ],
         ),
         trailing: GestureDetector(
           onTap: () {
-            // 
-            _toggleCheckbox(widget.id);
+            //
+            _toggleCheckbox(widget.todo);
           },
           child: AnimatedCrossFade(
-            
             firstChild: _uncheckedBox(),
             secondChild: _checkedBox(),
-            crossFadeState:
-                widget.isDone ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+            crossFadeState: widget.todo.isDone
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
             duration: const Duration(milliseconds: 400),
           ),
         ),
@@ -70,13 +62,10 @@ class _TodoTileWidgetState extends ConsumerState<TodoTileWidget> {
             context,
             MaterialPageRoute(
               builder: (context) => DetailPage(
-                id: widget.id,
+                id: widget.todo.id,
               ),
             ),
           );
-        
-
-
         },
       ),
     );
@@ -84,8 +73,8 @@ class _TodoTileWidgetState extends ConsumerState<TodoTileWidget> {
 
   Container _uncheckedBox() {
     return Container(
-      width: 20,
-      height: 20,
+      width: 24,
+      height: 24,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: Colors.grey[200],
@@ -100,8 +89,8 @@ class _TodoTileWidgetState extends ConsumerState<TodoTileWidget> {
 
   Container _checkedBox() {
     return Container(
-      width: 20,
-      height: 20,
+      width: 24,
+      height: 24,
       decoration: const BoxDecoration(
         shape: BoxShape.circle,
         color: Colors.deepPurple,
@@ -114,8 +103,7 @@ class _TodoTileWidgetState extends ConsumerState<TodoTileWidget> {
     );
   }
 
-  void _toggleCheckbox(String id) {
-    
-    ref.read(todoListProvider.notifier).toggleTodoItem(id);
+  void _toggleCheckbox(Todo todo) {
+    ref.read(todoListProvider.notifier).toggleTodoItem(todo);
   }
 }
