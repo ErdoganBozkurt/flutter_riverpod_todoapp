@@ -17,11 +17,11 @@ final todoListProvider = StateNotifierProvider<TodoListManager, List<Todo>>((ref
 
 final dayTimeNameProvider = Provider<String>((ref) {
   final hour = DateTime.now().hour;
-  if (hour < 12) {
+  if (hour < 12 && hour >= 5) {
     return 'Morning';
-  } else if (hour < 17) {
+  } else if (hour >= 12 && hour < 17) {
     return 'Afternoon';
-  } else if (hour < 20) {
+  } else if (hour >= 17 && hour < 23) {
     return 'Evening';
   } else {
     return 'Night';

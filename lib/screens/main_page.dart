@@ -9,13 +9,12 @@ import 'detail_page.dart';
 class MainPage extends ConsumerWidget {
   const MainPage({Key? key}) : super(key: key);
 
-  
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     List todoList = ref.watch(todoListProvider);
+
     String dayTimeName = ref.watch(dayTimeNameProvider);
-    
+
     return Scaffold(
       backgroundColor: Colors.grey[200],
       floatingActionButton: addTaskButton(context),
@@ -45,9 +44,8 @@ class MainPage extends ConsumerWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Lottie.network(
-                          'https://assets3.lottiefiles.com/packages/lf20_8ptubsmp.json',
-                          width: 200,
+                        Lottie.asset(
+                          'assets/lottie_alien_emoji.json',
                           height: 200,
                         ),
                         Text(
@@ -92,7 +90,6 @@ class MainPage extends ConsumerWidget {
           ),
         ),
       ),
-      
     );
   }
 
