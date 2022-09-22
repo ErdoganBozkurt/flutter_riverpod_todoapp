@@ -15,7 +15,18 @@ final todoListProvider = StateNotifierProvider<TodoListManager, List<Todo>>((ref
   return TodoListManager(state);
 });
 
-// get current todos task
+final dayTimeNameProvider = Provider<String>((ref) {
+  final hour = DateTime.now().hour;
+  if (hour < 12) {
+    return 'Morning';
+  } else if (hour < 17) {
+    return 'Afternoon';
+  } else if (hour < 20) {
+    return 'Evening';
+  } else {
+    return 'Night';
+  }
+});
 
 
 

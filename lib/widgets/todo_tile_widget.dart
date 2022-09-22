@@ -4,14 +4,17 @@ import 'package:todo_app/models/todo.dart';
 import 'package:todo_app/providers/all_providers.dart';
 import 'package:todo_app/screens/detail_page.dart';
 import 'package:todo_app/utils/app_colors.dart';
+import 'package:todo_app/utils/task_colors.dart';
 
 class TodoTileWidget extends ConsumerStatefulWidget {
   const TodoTileWidget({
     Key? key,
     required this.todo,
+    required this.index,
   }) : super(key: key);
 
   final Todo todo;
+  final int index;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _TodoTileWidgetState();
@@ -36,6 +39,9 @@ class _TodoTileWidgetState extends ConsumerState<TodoTileWidget> {
                 widget.todo.task,
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       color: AppColors.ebonyClay,
+                      decoration: widget.todo.isDone
+                          ? TextDecoration.lineThrough
+                          : TextDecoration.none,
                     ),
                 maxLines: 4,
                 overflow: TextOverflow.ellipsis,
@@ -80,7 +86,7 @@ class _TodoTileWidgetState extends ConsumerState<TodoTileWidget> {
         color: Colors.grey[200],
         // colored border
         border: Border.all(
-          color: Colors.orange,
+          color: TaskColors.getColor(widget.index),
           width: 2,
         ),
       ),

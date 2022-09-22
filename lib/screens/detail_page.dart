@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todo_app/providers/all_providers.dart';
 import 'package:todo_app/utils/app_colors.dart';
-
 import '../models/todo.dart';
 
 class DetailPage extends ConsumerStatefulWidget {
@@ -18,19 +18,17 @@ class DetailPage extends ConsumerStatefulWidget {
 }
 
 class _DetailPageState extends ConsumerState<DetailPage> {
-  final _textEditingController = TextEditingController();
+  late final TextEditingController _textEditingController;
 
   @override
   void initState() {
     super.initState();
+    _textEditingController = TextEditingController();
 
-    if (widget.id != null) {
-      _textEditingController.text = ref
-          .read(todoListProvider)
-          .firstWhere((element) => element.id == widget.id)
-          .task;
-    }
+    _displaySavedTask();
   }
+
+  
 
   @override
   void dispose() {
@@ -40,14 +38,20 @@ class _DetailPageState extends ConsumerState<DetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[200],
-      appBar: _myAppBar(context, ref),
-      body: Column(
-        children: [
-          // text field for input task
-          _textField(context),
-        ],
+    return WillPopScope(
+      onWillPop: () async {
+        _addAndEditTodo(ref);
+        return true;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.grey[200],
+        appBar: _myAppBar(context, ref),
+        body: Column(
+          children: [
+            // text field for input task
+            _textField(context),
+          ],
+        ),
       ),
     );
   }
@@ -55,6 +59,10 @@ class _DetailPageState extends ConsumerState<DetailPage> {
   AppBar _myAppBar(BuildContext context, WidgetRef ref) {
     return AppBar(
       backgroundColor: Colors.transparent,
+      systemOverlayStyle: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+      ),
       elevation: 0,
       title: Text(
         'My Task',
@@ -80,7 +88,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
             _textEditingController.clear();
           },
           icon: const Icon(
-            Icons.delete,
+            Icons.delete_outline_rounded,
             color: AppColors.darkLavender,
             size: 20,
           ),
@@ -89,9 +97,14 @@ class _DetailPageState extends ConsumerState<DetailPage> {
     );
   }
 
-  //! Add todo and pop
+  //* Add todo and pop
   void _addTodoAndPop(BuildContext context, WidgetRef ref) {
     Navigator.pop(context);
+    _addAndEditTodo(ref);
+  }
+
+  //* Add or edit todo
+  void _addAndEditTodo(WidgetRef ref) {
     if (_textEditingController.text.trim().isNotEmpty) {
       // if id is null, add new todo
       // else update todo
@@ -111,7 +124,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
     }
   }
 
-  //! Text field
+  //* Text field
   _textField(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(20),
@@ -136,5 +149,15 @@ class _DetailPageState extends ConsumerState<DetailPage> {
             ),
       ),
     );
+  }
+
+  //* Display saved task if id is not null
+  void _displaySavedTask() {
+    if (widget.id != null) {
+      _textEditingController.text = ref
+          .read(todoListProvider)
+          .firstWhere((element) => element.id == widget.id)
+          .task;
+    }
   }
 }

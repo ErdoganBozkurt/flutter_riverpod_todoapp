@@ -3,16 +3,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todo_app/providers/all_providers.dart';
 import 'package:todo_app/utils/app_colors.dart';
 import 'package:todo_app/widgets/todo_tile_widget.dart';
-
+import 'package:lottie/lottie.dart';
 import 'detail_page.dart';
 
 class MainPage extends ConsumerWidget {
   const MainPage({Key? key}) : super(key: key);
 
+  
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     List todoList = ref.watch(todoListProvider);
-
+    String dayTimeName = ref.watch(dayTimeNameProvider);
+    
     return Scaffold(
       backgroundColor: Colors.grey[200],
       floatingActionButton: addTaskButton(context),
@@ -25,7 +28,7 @@ class MainPage extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Text(
-                'Hey, Good \nAfternoon !',
+                'Hey, Good \n$dayTimeName !',
                 style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                       fontWeight: FontWeight.bold,
                       color: AppColors.ebonyClay,
@@ -36,35 +39,60 @@ class MainPage extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 child: remainTasksInfo(context, ref),
               ),
-              Expanded(
-                child: GridView.builder(
-                  shrinkWrap: true,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 32,
-                    mainAxisSpacing: 16,
+              if (todoList.isEmpty)
+                Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Lottie.network(
+                          'https://assets3.lottiefiles.com/packages/lf20_8ptubsmp.json',
+                          width: 200,
+                          height: 200,
+                        ),
+                        Text(
+                          'Any task to do today?',
+                          style:
+                              Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                    color: AppColors.ebonyClay,
+                                  ),
+                        ),
+                      ],
+                    ),
                   ),
-                  itemCount: todoList.length,
-                  itemBuilder: (context, index) {
-                    return Dismissible(
-                      key: Key(todoList[index].id),
-                      //key: Key(todoList[index].id),
-                      onDismissed: (direction) {
-                        ref
-                            .read(todoListProvider.notifier)
-                            .deleteTodoItem(todoList[index].id);
-                      },
-                      child: TodoTileWidget(
-                        todo: todoList[index],
-                      ),
-                    );
-                  },
+                )
+              else
+                Expanded(
+                  child: GridView.builder(
+                    shrinkWrap: true,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 32,
+                      mainAxisSpacing: 16,
+                    ),
+                    itemCount: todoList.length,
+                    itemBuilder: (context, index) {
+                      return Dismissible(
+                        key: Key(todoList[index].id),
+                        onDismissed: (direction) {
+                          ref
+                              .read(todoListProvider.notifier)
+                              .deleteTodoItem(todoList[index].id);
+                        },
+                        child: TodoTileWidget(
+                          todo: todoList[index],
+                          index: index,
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
             ],
           ),
         ),
       ),
+      
     );
   }
 
