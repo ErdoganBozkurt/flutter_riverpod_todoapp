@@ -7,11 +7,11 @@ import '../models/todo.dart';
 
 class DetailPage extends ConsumerStatefulWidget {
   const DetailPage({
-    this.id,
+    this.todo,
     Key? key,
   }) : super(key: key);
 
-  final String? id;
+  final Todo? todo;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _DetailPageState();
@@ -27,8 +27,6 @@ class _DetailPageState extends ConsumerState<DetailPage> {
 
     _displaySavedTask();
   }
-
-  
 
   @override
   void dispose() {
@@ -77,15 +75,17 @@ class _DetailPageState extends ConsumerState<DetailPage> {
           _addTodoAndPop(context, ref);
         },
         icon: const Icon(
-          Icons.arrow_back_ios,
+          Icons.arrow_back_ios_new_rounded,
           color: AppColors.darkLavender,
-          size: 20,
+          size: 18,
         ),
       ),
       actions: [
         IconButton(
           onPressed: () {
-            _textEditingController.clear();
+            setState(() {
+              _textEditingController.clear();
+            });
           },
           icon: const Icon(
             Icons.delete_outline_rounded,
@@ -108,16 +108,16 @@ class _DetailPageState extends ConsumerState<DetailPage> {
     if (_textEditingController.text.trim().isNotEmpty) {
       // if id is null, add new todo
       // else update todo
-      if (widget.id == null) {
+      if (widget.todo == null) {
         ref.read(todoListProvider.notifier).addTodoItem(
               _textEditingController.text,
             );
       } else {
         ref.read(todoListProvider.notifier).editTodoItem(
               Todo(
-                id: widget.id!,
+                id: widget.todo!.id,
                 task: _textEditingController.text,
-                isDone: false,
+                isDone: widget.todo!.isDone,
               ),
             );
       }
@@ -132,6 +132,15 @@ class _DetailPageState extends ConsumerState<DetailPage> {
         controller: _textEditingController,
         minLines: 1,
         maxLines: null,
+        onChanged: (value) {
+          setState(() {});
+        },
+        toolbarOptions: const ToolbarOptions(
+          copy: true,
+          cut: true,
+          paste: true,
+          selectAll: true,
+        ),
         decoration: InputDecoration(
           border: // no border for text field
               OutlineInputBorder(
@@ -142,6 +151,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
           hintStyle: Theme.of(context).textTheme.bodyText1!.copyWith(
                 color: AppColors.fadedPurple,
               ),
+          counterText: '${_textEditingController.text.length} Characters',
         ),
         autofocus: true,
         style: Theme.of(context).textTheme.bodyText1!.copyWith(
@@ -153,10 +163,10 @@ class _DetailPageState extends ConsumerState<DetailPage> {
 
   //* Display saved task if id is not null
   void _displaySavedTask() {
-    if (widget.id != null) {
+    if (widget.todo != null) {
       _textEditingController.text = ref
           .read(todoListProvider)
-          .firstWhere((element) => element.id == widget.id)
+          .firstWhere((element) => element.id == widget.todo!.id)
           .task;
     }
   }

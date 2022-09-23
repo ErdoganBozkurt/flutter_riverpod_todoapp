@@ -47,6 +47,7 @@ class MainPage extends ConsumerWidget {
                         Lottie.asset(
                           'assets/lottie_alien_emoji.json',
                           height: 200,
+                          width: 200,
                         ),
                         Text(
                           'Any task to do today?',
@@ -73,10 +74,60 @@ class MainPage extends ConsumerWidget {
                     itemBuilder: (context, index) {
                       return Dismissible(
                         key: Key(todoList[index].id),
+                        onUpdate: (details) {
+                          ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                        },
                         onDismissed: (direction) {
+                          // delete a todo item temporarily
                           ref
                               .read(todoListProvider.notifier)
-                              .deleteTodoItem(todoList[index].id);
+                              .deleteTodoItemTemporarily(
+                                todoList[index].id,
+                              );
+
+                          // show a snackbar
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(
+                                SnackBar(
+                                  behavior: SnackBarBehavior.floating,
+                                  duration: const Duration(seconds: 3),
+                                  content: Text(
+                                    'Task deleted',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium!
+                                        .copyWith(
+                                          color: AppColors.ebonyClay,
+                                        ),
+                                  ),
+                                  backgroundColor: AppColors.linkWater,
+                                  action: SnackBarAction(
+                                    label: 'Undo',
+                                    onPressed: () {
+                                      // undo the deletion
+                                      ref
+                                          .read(todoListProvider.notifier)
+                                          .restoreTodoItem(
+                                            todoList[index],
+                                          );
+                                    },
+                                  ),
+                                ),
+                              )
+                              .closed
+                              .then((reason) async {
+                            // delete a todo item permanently when the snackbar is dismissed
+
+                            if (reason == SnackBarClosedReason.action) {
+                              return;
+                            } else {
+                              await ref
+                                  .read(todoListProvider.notifier)
+                                  .deleteTodoItem(
+                                    todoList[index].id,
+                                  );
+                            }
+                          });
                         },
                         child: TodoTileWidget(
                           todo: todoList[index],
@@ -109,11 +160,25 @@ class MainPage extends ConsumerWidget {
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(32)),
         ),
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.only(
+          left: 32,
+          right: 32,
+          top: 16,
+          bottom: 16,
+        ),
       ),
-      child: const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
-        child: Text('Add new task'),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: const [
+          Padding(
+            padding: EdgeInsets.only(right: 8),
+            child: Icon(
+              Icons.add_rounded,
+              color: Colors.white,
+            ),
+          ),
+          Text('Add new task'),
+        ],
       ),
     );
   }

@@ -19,9 +19,10 @@ class TodoListManager extends StateNotifier<List<Todo>> {
     state = box.values.toList();
   }
 
-  void deleteTodoItem(String id) async {
+  Future deleteTodoItem(String id) async {
     var box = await Hive.openBox<Todo>('todo_box');
-    await box.deleteAt( box.values.toList().indexWhere((element) => element.id == id));
+    await box.deleteAt(
+        box.values.toList().indexWhere((element) => element.id == id));
 
     state = box.values.toList();
   }
@@ -53,4 +54,16 @@ class TodoListManager extends StateNotifier<List<Todo>> {
 
     state = box.values.toList();
   }
+
+  // delete todo item temporarily from the list
+  void deleteTodoItemTemporarily(String id) {
+    state = state.where((element) => element.id != id).toList();
+  }
+
+  // restore todo item from the list
+  void restoreTodoItem(Todo todo) {
+    state = [...state, todo];
+  }
+  
+ 
 }

@@ -26,41 +26,34 @@ class _TodoTileWidgetState extends ConsumerState<TodoTileWidget> {
     return Card(
       elevation: 8,
       color: Colors.grey[200],
-      shadowColor: AppColors.blueHaze,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
-      child: ListTile(
-        title: Flex(
-          direction: Axis.vertical,
-          children: [
-            Expanded(
-              child: Text(
-                widget.todo.task,
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: AppColors.ebonyClay,
-                      decoration: widget.todo.isDone
-                          ? TextDecoration.lineThrough
-                          : TextDecoration.none,
-                    ),
-                maxLines: 4,
-                overflow: TextOverflow.ellipsis,
+      shadowColor: AppColors.blueHaze,
+      child: InkWell(
+        highlightColor: AppColors.linkWater,
+        splashColor: AppColors.linkWater,
+        splashFactory: InkRipple.splashFactory,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Stack(
+            children: [
+              Align(alignment: Alignment.topRight, child: _customCheckBox()),
+              Align(
+                alignment: Alignment.center,
+                child: Text(
+                  widget.todo.task,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        color: AppColors.ebonyClay,
+                        decoration: widget.todo.isDone
+                            ? TextDecoration.lineThrough
+                            : TextDecoration.none,
+                      ),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ),
-          ],
-        ),
-        trailing: GestureDetector(
-          onTap: () {
-            //
-            _toggleCheckbox(widget.todo);
-          },
-          child: AnimatedCrossFade(
-            firstChild: _uncheckedBox(),
-            secondChild: _checkedBox(),
-            crossFadeState: widget.todo.isDone
-                ? CrossFadeState.showSecond
-                : CrossFadeState.showFirst,
-            duration: const Duration(milliseconds: 400),
+            ],
           ),
         ),
         onTap: () {
@@ -68,11 +61,28 @@ class _TodoTileWidgetState extends ConsumerState<TodoTileWidget> {
             context,
             MaterialPageRoute(
               builder: (context) => DetailPage(
-                id: widget.todo.id,
+                todo: widget.todo,
               ),
             ),
           );
         },
+      ),
+    );
+  }
+
+  GestureDetector _customCheckBox() {
+    return GestureDetector(
+      onTap: () {
+        //
+        _toggleCheckbox(widget.todo);
+      },
+      child: AnimatedCrossFade(
+        firstChild: _uncheckedBox(),
+        secondChild: _checkedBox(),
+        crossFadeState: widget.todo.isDone
+            ? CrossFadeState.showSecond
+            : CrossFadeState.showFirst,
+        duration: const Duration(milliseconds: 400),
       ),
     );
   }

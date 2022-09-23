@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class TaskColors {
@@ -8,6 +7,7 @@ class TaskColors {
     Colors.blue,
     Colors.green,
     Colors.red,
+    Colors.yellow,
   ];
 
   static Color getColor(int index) {
